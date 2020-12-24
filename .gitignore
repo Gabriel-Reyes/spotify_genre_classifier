@@ -128,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 Spotify Genre Classifier/setup.py
+Spotify Genre Classifier/test

@@ -65,20 +65,29 @@ genres = training_data[['genre', 'genre code']].drop_duplicates().set_index('gen
 
 # genre estimator, prints numerical genre code predictions for each artist, and retuns final df of results
 
-def predictor(artists, model_type, genres):
+def predictor(artists, model_type):
     
     X_train = training_data.iloc[:, :11]
     y_train = training_data['genre code']
     
     if model_type == 'knn':
+        model_name = 'K-Neighbors Classifier'
         model = KNeighborsClassifier()
+
     if model_type == 'lr':
+        model_name = 'Logistic Regression'
         model = LogisticRegression()
+
     if model_type == 'rfr':
+        model_name = 'Random Forest Classifier'
         model = RandomForestClassifier()
+
     if model_type == 'xgb':
+        model_name = 'XG Boost'
         model = XGBClassifier()
+
     if model_type == 'nn':
+        model_name = 'Neural Network'
         model = MLPClassifier()
 
     model.fit(X_train, y_train)
@@ -88,33 +97,41 @@ def predictor(artists, model_type, genres):
     for artist in artists:
 
         discog = get_discography(artist[0])
+        name = artist[0]
         print(discog['artist'].value_counts())
 
         X_artist = discog.iloc[:, :11]
         
         prediction = model.predict(X_artist)
         print(prediction)
+        print('\n')
 
         genre_code_guess = np.bincount(prediction).argmax()
         percent = round(np.bincount(prediction)[np.bincount(prediction).argmax()] / len(prediction), 2)
 
-        predictions[artist] = {}
-        predictions[artist]['predicted genre'] = genres[genre_code_guess]
-        predictions[artist]['actual genre'] = genres[artist[1]]
-        predictions[artist]['percent'] = percent
+        predictions[name] = {}
+        predictions[name]['actual genre'] = genres[artist[1]]
+        predictions[name]['predicted genre'] = genres[genre_code_guess]
+        predictions[name]['percent'] = percent
+
+    print('Model Type:', model_name)
+    print('-'*30)
 
     return print(pd.DataFrame(predictions).transpose())
 
 
 # evaluating ML models with one new artist per genre
 
-artists = [('guns n roses', 0),
+artists = [('joan jett', 0),
             ('chet baker', 1),
             ('blind willie johnson', 2),
             ('hieroglyphics', 3),
-            ('lemon jelly', 4)]
+            ('lemon jelly', 4),
+            ('nirvana', 0),
+            ('lauryn hill', 3),
+            ('sonny rollins', 1)]
 
-#predictor(artists, 'knn', genres)
-# predictor(artists, 'rfr', genres)
-predictor(artists, 'xgb', genres)
-# predictor(artists, 'nn', genres)
+#predictor(artists, 'knn')
+# predictor(artists, 'rfr')
+predictor(artists, 'xgb')
+# predictor(artists, 'nn')
