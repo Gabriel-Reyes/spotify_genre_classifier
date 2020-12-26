@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 import setup
 
@@ -10,8 +8,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
-
-from sklearn.metrics import roc_auc_score, f1_score
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -59,7 +55,7 @@ def get_discography(search):
 
 # reading in genre database, csv created via genre_database_builder.py file
 
-training_data = pd.read_csv('Spotify Genre Classifier/training_data.csv')
+training_data = pd.read_csv(setup.csv_path)
 
 genres = training_data[['genre', 'genre code']].drop_duplicates().set_index('genre code')['genre'].to_dict()
 
@@ -97,14 +93,11 @@ def predictor(artists, model_type):
     for artist in artists:
 
         discog = get_discography(artist[0])
-        name = artist[0]
-        print(discog['artist'].value_counts())
+        name = discog['artist'].iloc[0]
 
         X_artist = discog.iloc[:, :11]
         
         prediction = model.predict(X_artist)
-        print(prediction)
-        print('\n')
 
         genre_code_guess = np.bincount(prediction).argmax()
         percent = round(np.bincount(prediction)[np.bincount(prediction).argmax()] / len(prediction), 2)
@@ -130,8 +123,3 @@ artists = [('joan jett', 0),
             ('nirvana', 0),
             ('lauryn hill', 3),
             ('sonny rollins', 1)]
-
-#predictor(artists, 'knn')
-# predictor(artists, 'rfr')
-predictor(artists, 'xgb')
-# predictor(artists, 'nn')
